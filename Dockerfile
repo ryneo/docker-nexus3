@@ -1,6 +1,7 @@
 FROM       centos:centos7
 MAINTAINER Sonatype <cloud-ops@sonatype.com>
 
+ENV NEXUS_HOME /opt/sonatype/nexus
 ENV NEXUS_DATA /nexus-data
 
 ENV NEXUS_VERSION 3.0.0-03
@@ -23,27 +24,27 @@ RUN mkdir -p /opt \
   | tar -x -C /opt \
   && ln -s /opt/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME}
 
+RUN useradd -r -u 200 -m -c "nexus role account" -d ${NEXUS_DATA} -s /bin/false nexus
+
 # install nexus
-RUN mkdir -p /opt/sonatype/nexus \
+RUN mkdir -p ${NEXUS_HOME} \
   && curl --fail --silent --location --retry 3 \
     https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-unix.tar.gz \
   | gunzip \
   | tar x -C /opt/sonatype/nexus --strip-components=1 nexus-${NEXUS_VERSION} \
-  && chown -R root:root /opt/sonatype/nexus 
+  && chown -R nexus:nexus ${NEXUS_HOME}
 
 ## configure nexus runtime env
 RUN sed \
-    -e "s|karaf.home=.|karaf.home=/opt/sonatype/nexus|g" \
-    -e "s|karaf.base=.|karaf.base=/opt/sonatype/nexus|g" \
-    -e "s|karaf.etc=etc|karaf.etc=/opt/sonatype/nexus/etc|g" \
-    -e "s|java.util.logging.config.file=etc|java.util.logging.config.file=/opt/sonatype/nexus/etc|g" \
+    -e "s|karaf.home=.|karaf.home=${NEXUS_HOME}|g" \
+    -e "s|karaf.base=.|karaf.base=${NEXUS_HOME}|g" \
+    -e "s|karaf.etc=etc|karaf.etc=${NEXUS_HOME}/etc|g" \
+    -e "s|java.util.logging.config.file=etc|java.util.logging.config.file=${NEXUS_HOME}/etc|g" \
     -e "s|karaf.data=data|karaf.data=${NEXUS_DATA}|g" \
     -e "s|java.io.tmpdir=data/tmp|java.io.tmpdir=${NEXUS_DATA}/tmp|g" \
-    -i /opt/sonatype/nexus/bin/nexus.vmoptions
+    -i ${NEXUS_HOME}/bin/nexus.vmoptions
 
-RUN useradd -r -u 200 -m -c "nexus role account" -d ${NEXUS_DATA} -s /bin/false nexus
-
-VOLUME ${NEXUS_DATA}
+VOLUME ${NEXUS_DATA} ${NEXUS_HOME}/etc
 
 EXPOSE 8081
 USER nexus
