@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
-gosu root cp ${NEXUS_HOME}/etc/* /etc/sonatype/nexus
+rsync -aq ${NEXUS_HOME}/etc /etc/sonatype/nexus
+gosu nexus ${NEXUS_HOME}/bin/nexus run
 
 exec "$@"

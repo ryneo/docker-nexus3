@@ -16,7 +16,7 @@ ADD entrypoint.sh /bin/entrypoint.sh
 RUN chmod +x /bin/entrypoint.sh
 
 RUN yum install -y \
-  curl tar \
+  curl rsync tar \
   && yum clean all
 
 RUN gpg --keyserver pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
@@ -36,7 +36,8 @@ RUN mkdir -p /opt \
   | tar -x -C /opt \
   && ln -s /opt/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME}
 
-RUN useradd -r -u 200 -m -c "nexus role account" -d ${NEXUS_DATA} -s /bin/false nexus
+RUN groupadd --gid=200 -r nexus \
+  && useradd -r --uid=200 --gid=200 -m -c "nexus role account" -d ${NEXUS_DATA} nexus
 
 # install nexus
 RUN mkdir -p ${NEXUS_HOME} \
@@ -44,9 +45,9 @@ RUN mkdir -p ${NEXUS_HOME} \
     https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-unix.tar.gz \
   | gunzip \
   | tar x -C /opt/sonatype/nexus --strip-components=1 nexus-${NEXUS_VERSION} \
-  && chown -R nexus:nexus ${NEXUS_HOME} \
-  && mkdir -p /etc/sonatype/nexus
-  # && chown -R 200:200 /etc/sonatype/nexus
+  && chown -R 200:200 ${NEXUS_HOME} \
+  && mkdir -p /etc/sonatype/nexus \
+  && chown -R 200:200 /etc/sonatype/nexus
 
 ## configure nexus runtime env
 RUN sed \
@@ -60,10 +61,8 @@ RUN sed \
 
 VOLUME ${NEXUS_DATA} /etc/sonatype/nexus
 
-EXPOSE 8081
-USER nexus
+EXPOSE 8081 8443
 WORKDIR /opt/sonatype/nexus
 
 # Run script to copy config and start nexus
 ENTRYPOINT ["/bin/entrypoint.sh"]
-CMD ["bin/nexus", "run"]
