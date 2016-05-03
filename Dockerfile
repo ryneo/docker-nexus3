@@ -36,8 +36,8 @@ RUN mkdir -p /opt \
   | tar -x -C /opt \
   && ln -s /opt/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME}
 
-RUN groupadd --gid=200 -r nexus \
-  && useradd -r --uid=200 --gid=200 -m -c "nexus role account" -d ${NEXUS_DATA} nexus
+RUN groupadd -g 1000 nexus \
+  && useradd -u 1000 -g 1000 -m -d ${NEXUS_DATA} -s /bin/bash nexus
 
 # install nexus
 RUN mkdir -p ${NEXUS_HOME} \
@@ -45,9 +45,9 @@ RUN mkdir -p ${NEXUS_HOME} \
     https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-unix.tar.gz \
   | gunzip \
   | tar x -C /opt/sonatype/nexus --strip-components=1 nexus-${NEXUS_VERSION} \
-  && chown -R 200:200 ${NEXUS_HOME} \
+  && chown -R nexus ${NEXUS_HOME} \
   && mkdir -p /etc/sonatype/nexus \
-  && chown -R 200:200 /etc/sonatype/nexus
+  && chown -R nexus /etc/sonatype/nexus
 
 ## configure nexus runtime env
 RUN sed \
