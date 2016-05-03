@@ -37,15 +37,15 @@ RUN mkdir -p /opt \
   && ln -s /opt/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME}
 
 RUN groupadd -g 1000 nexus \
-  && useradd -u 1000 -g 1000 -m -d ${NEXUS_DATA} -s /bin/bash nexus
+  && useradd -u 1000 -g 1000 -m -d "${NEXUS_DATA}" -s /bin/bash nexus
 
 # install nexus
-RUN mkdir -p ${NEXUS_HOME} \
+RUN mkdir -p "${NEXUS_HOME}" \
   && curl --fail --silent --location --retry 3 \
     https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-unix.tar.gz \
   | gunzip \
   | tar x -C /opt/sonatype/nexus --strip-components=1 nexus-${NEXUS_VERSION} \
-  && chown -R nexus ${NEXUS_HOME} \
+  && chown -R nexus "${NEXUS_HOME}" \
   && mkdir -p /etc/sonatype/nexus \
   && chown -R nexus /etc/sonatype/nexus
 
