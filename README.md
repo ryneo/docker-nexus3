@@ -5,7 +5,7 @@ A Dockerfile for Sonatype Nexus Repository Manager 3, based on CentOS.
 To run, binding the exposed port 8081 to the host.
 
 ```
-$ docker run -d -p 8081:8081 --name nexus sonatype/nexus3
+$ docker run -d -p 8081:8081 -p 8443:8443 --name nexus sonatype/nexus3
 ```
 
 To test:
@@ -37,8 +37,9 @@ $ docker logs -f nexus
 * Installation of Nexus is to `/opt/sonatype/nexus`.  
 
 * A persistent directory, `/nexus-data`, is used for configuration,
-logs, and storage. This directory needs to be writable by the Nexus
-process, which runs as UID 200.
+logs, and storage.
+
+* `/etc/sonatype/nexus` is used for configuration files
 
 * Three environment variables can be used to control the JVM arguments
 
@@ -55,6 +56,9 @@ process, which runs as UID 200.
   $ docker run -d -p 8081:8081 --name nexus -e JAVA_MAX_HEAP=768m sonatype/nexus3
   ```
 
+## HTTPS
+
+*TODO*
 
 ### Persistent Data
 
@@ -63,7 +67,7 @@ with Docker. See [Managing Data in Containers](https://docs.docker.com/userguide
 for additional information.
 
   1. *Use a data volume container*.  Since data volumes are persistent
-  until no containers use them, a container can created specifically for 
+  until no containers use them, a container can created specifically for
   this purpose.  This is the recommended approach.  
 
   ```
@@ -77,6 +81,6 @@ for additional information.
   to be assigned to certain specific underlying storage.  
 
   ```
-  $ mkdir /some/dir/nexus-data && chown -R 200 /some/dir/nexus-data
-  $ docker run -d -p 8081:8081 --name nexus -v /some/dir/nexus-data:/nexus-data sonatype/nexus3
+  $ mkdir -p /some/dir/nexus-data && mkdir -p /some/dir/nexus-config
+  $ docker run -d -p 8081:8081 --name nexus -v /some/dir/nexus-data:/nexus-data -v /some/dir/nexus-config:/etc/sonatype/nexus sonatype/nexus3
   ```
