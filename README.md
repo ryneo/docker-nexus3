@@ -56,9 +56,21 @@ logs, and storage.
   $ docker run -d -p 8081:8081 --name nexus -e JAVA_MAX_HEAP=768m sonatype/nexus3
   ```
 
-## HTTPS
+## Configure HTTPS
 
-*TODO*
+1. Add `${karaf.etc}/jetty-https.xml` to `nexus-args` in `org.sonatype.nexus.cfg`.
+
+1. Add `application-port-ssl=8443` to `org.sonatype.nexus.cfg`.
+
+1. Generate self-signed server certificate.
+
+  ```
+  keytool -genkeypair -keystore server-keystore.jks -storepass changeit -keypass changeit -alias jetty -keyalg RSA -keysize 2048 -validity 5000 -dname "CN=*.${NEXUS_DOMAIN}, OU=Example, O=Sonatype, L=Unspecified, ST=Unspecified, C=US" -ext "SAN=DNS:${NEXUS_DOMAIN},IP:${NEXUS_IP_ADDRESS}" -ext "BC=ca:true"
+  ```
+
+1. Set `TrustStorePath` and `KeyStorePath` in `jetty-https.xml`.
+
+1. Set passwords for `KeyStorePassword`, `KeyManagerPassword` and `TrustStorePassword`.
 
 ### Persistent Data
 
