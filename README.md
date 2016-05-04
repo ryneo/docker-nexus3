@@ -72,7 +72,21 @@ logs, and storage.
 
 1. Set passwords for `KeyStorePassword`, `KeyManagerPassword` and `TrustStorePassword`.
 
-### Persistent Data
+### Docker Registry
+
+1. Export the certificate from the keystore.
+
+  ```
+  keytool -export -alias jetty -keystore server-keystore.jks -rfc
+  ```
+
+1. Create registry and configure HTTPS repository connector on port `5000`.
+
+1. Allow the Docker daemon to trust the certificate.
+  Copy the certifcate to `/etc/docker/certs.d/myregistrydomain.com:5000/ca.crt`
+  and restart the Docker daemon.
+
+## Persistent Data
 
 There are two general approaches to handling persistent storage requirements
 with Docker. See [Managing Data in Containers](https://docs.docker.com/userguide/dockervolumes/)

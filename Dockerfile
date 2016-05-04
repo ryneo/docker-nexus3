@@ -61,7 +61,7 @@ RUN sed \
 
 VOLUME ${NEXUS_DATA} /etc/sonatype/nexus
 
-EXPOSE 8081 8443
+EXPOSE 8081 8443 5000
 WORKDIR /opt/sonatype/nexus
 
 # Run script to copy config and start nexus
