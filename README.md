@@ -86,6 +86,12 @@ logs, and storage.
   Copy the certifcate to `/etc/docker/certs.d/myregistrydomain.com:5000/ca.crt`
   and restart the Docker daemon.
 
+1. Login to the registry.  Use the port mapped to the host.
+
+  ```
+  docker login myregistrydomain:5000
+  ```
+
 ## Persistent Data
 
 There are two general approaches to handling persistent storage requirements
